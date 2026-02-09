@@ -114,3 +114,33 @@ export const forgotPassword = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const verifyResetCode = async (req: Request, res: Response) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).json({ error: "Email and code are required" });
+  }
+
+  // Fetch stored code and expiry for this email from your DB
+  const record = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!record || record.resetCode !== code) {
+    return res.status(400).json({ error: "Invalid reset code" });
+  }
+
+  if (new Date() > new Date(record.resetCodeExpiry!)) {
+    return res.status(400).json({ error: "Reset code expired" });
+  }
+
+  // Optionally create a short-lived token for password reset authorization
+  // const resetToken = generateResetToken(email);
+
+  return res.json({
+    message: "You can now Create the new password",
+  });
+};
