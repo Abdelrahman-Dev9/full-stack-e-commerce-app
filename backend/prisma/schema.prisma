@@ -19,6 +19,8 @@ model User {
   password    String
   name        String?
   avatarUrl   String?
+  resetCode           String?
+  resetCodeExpiry     DateTime?
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
