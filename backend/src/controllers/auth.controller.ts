@@ -222,3 +222,30 @@ export const getProfile = async (
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateProfile = async (
+  req: Request & { user?: { id: string } },
+  res: Response
+) => {
+  try {
+    const { name, avatarUrl } = req.body;
+    const userId = req.user?.id;
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: name,
+        avatarUrl: avatarUrl,
+      },
+    });
+    res.json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
