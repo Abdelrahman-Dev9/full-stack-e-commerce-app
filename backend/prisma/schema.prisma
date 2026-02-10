@@ -22,7 +22,33 @@ model User {
   resetCode           String?
   resetCodeExpiry     DateTime?
   resetPasswordToken String?  @unique
+  // 🔗 Relation
+  addresses Address[]
+
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Address{
+  id        String   @id @default(uuid())
+
+   // 🔗 Foreign Key
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  phone     String
+  city      String
+  area      String
+  street    String
+
+  building  String?
+  floor     String?
+  apartment String?
+  notes     String?
+
+  isDefault Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

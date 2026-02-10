@@ -249,3 +249,82 @@ export const updateProfile = async (
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+export const getAddress = async (
+  req: Request & { user?: { id: string } },
+  res: Response
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userAddress = await prisma.address.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        phone: true,
+        city: true,
+        area: true,
+        street: true,
+        building: true,
+        floor: true,
+        apartment: true,
+        notes: true,
+        isDefault: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    res.json({ message: "Addresses fetched successfully", userAddress });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Interval server error" });
+  }
+};
+
+export const createAddress = async (
+  req: Request & { user?: { id: string } },
+  res: Response
+) => {
+  try {
+    const userId = req.user?.id;
+    const {
+      phone,
+      city,
+      area,
+      street,
+      building,
+      floor,
+      apartment,
+      notes,
+      isDefault,
+    } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const address = await prisma.address.create({
+      data: {
+        userId,
+        phone: phone,
+        city: city,
+        area: area,
+        street: street,
+        building: building,
+        floor: floor,
+        apartment: apartment,
+        notes: notes,
+        isDefault: isDefault,
+      },
+    });
+    res.json({ message: "Address added successfully", address });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Interval server error" });
+  }
+};

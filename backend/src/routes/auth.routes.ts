@@ -7,6 +7,8 @@ import {
   resetPassword,
   getProfile,
   updateProfile,
+  createAddress,
+  getAddress,
 } from "../controllers/auth.controller";
 import { protect } from "../middleware/auth.middleware";
 
@@ -19,5 +21,7 @@ router.post("/verifyResetCode", verifyResetCode);
 router.post("/resetPassword", resetPassword);
 router.get("/profile", protect, getProfile);
 router.put("/updateProfile", protect, updateProfile);
+router.get("/getAddress", protect, getAddress);
+router.post("/createAddress", protect, createAddress);
 
 export default router;
