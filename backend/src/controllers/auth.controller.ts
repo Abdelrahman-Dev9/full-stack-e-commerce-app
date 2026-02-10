@@ -3,6 +3,7 @@ import prisma from "../prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../utils/sendEmail";
+import { generateToken } from "../utils/jwt";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -52,9 +53,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid Email or Password" });
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
-      expiresIn: "1h",
-    });
+    const token = generateToken(user.id);
 
     const { password: userPassword, ...userWithoutPassword } = user;
     res.status(200).json({ data: userWithoutPassword, token });
@@ -138,9 +137,54 @@ export const verifyResetCode = async (req: Request, res: Response) => {
   }
 
   // Optionally create a short-lived token for password reset authorization
-  // const resetToken = generateResetToken(email);
+  const resetToken = generateToken(email);
 
-  return res.json({
-    message: "You can now Create the new password",
+  await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      resetPasswordToken: resetToken,
+    },
   });
+
+  return res.status(200).json({
+    message: "Code verified. You can now reset password.",
+    resetToken,
+  });
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    const verifyUser = await prisma.user.findUnique({
+      where: {
+        resetPasswordToken: token,
+      },
+    });
+
+    if (!verifyUser) {
+      return res.status(400).json({ error: "Invalid reset token" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: {
+        resetPasswordToken: token,
+      },
+      data: {
+        password: hashedNewPassword,
+        resetPasswordToken: null,
+        resetCode: null,
+        resetCodeExpiry: null,
+      },
+    });
+
+    return res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
