@@ -10,6 +10,7 @@ import {
   createAddress,
   getAddress,
   updateAddress,
+  deleteAddress,
 } from "../controllers/auth.controller";
 import { protect } from "../middleware/auth.middleware";
 
@@ -25,5 +26,6 @@ router.put("/updateProfile", protect, updateProfile);
 router.get("/getAddress", protect, getAddress);
 router.post("/createAddress", protect, createAddress);
 router.put("/updateAddress", protect, updateAddress);
+router.delete("/deleteAddress", protect, deleteAddress);
 
 export default router;

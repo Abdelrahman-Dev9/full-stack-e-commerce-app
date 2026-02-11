@@ -375,3 +375,29 @@ export const updateAddress = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Interval server error" });
   }
 };
+
+export const deleteAddress = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.body;
+
+    const user = await prisma.address.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "address not found" });
+    }
+
+    await prisma.address.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    res.json({ message: "Address deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Interval server error" });
+  }
+};
