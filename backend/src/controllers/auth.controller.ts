@@ -66,10 +66,6 @@ export const login = async (req: Request, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
 
-  if (!email || typeof email !== "string") {
-    return res.status(400).json({ error: "Email is required" });
-  }
-
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -117,9 +113,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
 export const verifyResetCode = async (req: Request, res: Response) => {
   const { email, code } = req.body;
 
-  if (!email || !code) {
-    return res.status(400).json({ error: "Email and code are required" });
-  }
+  // if (!email || !code) {
+  //   return res.status(400).json({ error: "Email and code are required" });
+  // }
 
   // Fetch stored code and expiry for this email from your DB
   const record = await prisma.user.findUnique({
