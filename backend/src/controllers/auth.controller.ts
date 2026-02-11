@@ -328,3 +328,50 @@ export const createAddress = async (
     res.status(500).json({ message: "Interval server error" });
   }
 };
+
+export const updateAddress = async (req: Request, res: Response) => {
+  try {
+    const {
+      id,
+      phone,
+      city,
+      area,
+      street,
+      building,
+      floor,
+      apartment,
+      notes,
+      isDefault,
+    } = req.body;
+
+    const address = await prisma.address.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!address) {
+      return res.status(404).json({ message: "address not found" });
+    }
+
+    await prisma.address.update({
+      where: {
+        id: id,
+      },
+      data: {
+        city: city,
+        phone: phone,
+        area: area,
+        street: street,
+        building: building,
+        floor: floor,
+        apartment: apartment,
+        notes: notes,
+        isDefault: isDefault,
+      },
+    });
+    res.json({ message: "Address updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Interval server error" });
+  }
+};

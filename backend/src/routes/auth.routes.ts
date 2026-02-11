@@ -9,6 +9,7 @@ import {
   updateProfile,
   createAddress,
   getAddress,
+  updateAddress,
 } from "../controllers/auth.controller";
 import { protect } from "../middleware/auth.middleware";
 
@@ -23,5 +24,6 @@ router.get("/profile", protect, getProfile);
 router.put("/updateProfile", protect, updateProfile);
 router.get("/getAddress", protect, getAddress);
 router.post("/createAddress", protect, createAddress);
+router.put("/updateAddress", protect, updateAddress);
 
 export default router;
