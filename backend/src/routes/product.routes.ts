@@ -13,8 +13,8 @@ import { addProductSchema } from "../validations/product.validation";
 
 const productRouter = Router();
 
-productRouter.post("/product", validation(addProductSchema), addProduct);
-productRouter.post("/category", validation(addCategorySchema), addCategory);
-productRouter.get("/category", validation(getCategorySchema), getCategory);
+productRouter.post("/addProduct", validation(addProductSchema), addProduct);
+productRouter.post("/addCategory", validation(addCategorySchema), addCategory);
+productRouter.get("/getCategory", validation(getCategorySchema), getCategory);
 
 export default productRouter;
