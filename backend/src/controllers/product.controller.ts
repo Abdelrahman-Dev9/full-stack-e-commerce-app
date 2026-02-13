@@ -1,8 +1,18 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
 
-export const getCategories = async (req: Request, res: Response) => {
+export const getCategory = async (req: Request, res: Response) => {
   try {
+    const { id } = req.body;
+
+    const category = await prisma.category.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!category) {
+      return res.status(401).json({ message: "this category not found" });
+    }
     const products = await prisma.product.findMany({
       select: {
         id: true,
@@ -26,7 +36,7 @@ export const getCategories = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: "Categories fetched successfully", products });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json(error);
   }
 };
 export const addCategory = async (req: Request, res: Response) => {
@@ -48,7 +58,7 @@ export const addCategory = async (req: Request, res: Response) => {
       category,
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(400).json(error);
   }
 };
 export const addProduct = async (req: Request, res: Response) => {
@@ -81,7 +91,6 @@ export const addProduct = async (req: Request, res: Response) => {
       product,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json(error);
   }
 };

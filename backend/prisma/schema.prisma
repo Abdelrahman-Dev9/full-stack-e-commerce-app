@@ -34,17 +34,17 @@ model Address{
   id        String   @id @default(uuid())
 
    // 🔗 Foreign Key
-  userId    String
+  userId    String  
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  phone     String
+  phone     String @unique
   city      String
   area      String
   street    String
 
   building  String?
   floor     String?
-  apartment String?
+  apartment String? 
   notes     String?
 
   isDefault Boolean  @default(false)
@@ -55,10 +55,10 @@ model Address{
 
 model Product {
   id          String   @id @default(uuid())
-  name        String
-  description String?
+  name        String   @unique
+  description String?  
   price       Float
-  image       String?
+  image       String?  @unique
   discount    String?
 
   categoryId  String
@@ -71,11 +71,11 @@ model Product {
 
 model Category {
   id            String   @id @default(uuid())
-  name          String
-  icon          String
-  gradientFrom  String
-  gradientTo    String
-  image         String?
+  name          String   @unique
+  icon          String   @unique
+  gradientFrom  String   @unique
+  gradientTo    String   @unique
+  image         String?  @unique
 
   products      Product[]
 
