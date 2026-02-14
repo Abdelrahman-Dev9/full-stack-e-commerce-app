@@ -26,6 +26,7 @@ model User {
   addresses          Address[]
 
   wishlists Wishlist[]
+  cart      Cart[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,6 +67,7 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
 
   wishlists Wishlist[]
+  cart      Cart[]
 
   createdAt DateTime @default(now())
 }
@@ -84,6 +86,19 @@ model Category {
 }
 
 model Wishlist {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) // prevent duplicates
+}
+
+model Cart {
   id        String @id @default(uuid())
   userId    String
   productId String
