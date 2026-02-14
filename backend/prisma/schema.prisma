@@ -14,70 +14,84 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  name        String?
-  avatarUrl   String?
-  resetCode           String?
-  resetCodeExpiry     DateTime?
-  resetPasswordToken String?  @unique
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  password           String
+  name               String?
+  avatarUrl          String?
+  resetCode          String?
+  resetCodeExpiry    DateTime?
+  resetPasswordToken String?   @unique
   // 🔗 Relation
-  addresses Address[]
+  addresses          Address[]
 
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  wishlists Wishlist[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Address{
-  id        String   @id @default(uuid())
+model Address {
+  id String @id @default(uuid())
 
-   // 🔗 Foreign Key
-  userId    String  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  phone     String @unique
-  city      String
-  area      String
-  street    String
+  // 🔗 Foreign Key
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  phone  String @unique
+  city   String
+  area   String
+  street String
 
   building  String?
   floor     String?
-  apartment String? 
+  apartment String?
   notes     String?
 
-  isDefault Boolean  @default(false)
+  isDefault Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?  
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
   price       Float
-  image       String?  @unique
+  image       String? @unique
   discount    String?
 
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
+  wishlists Wishlist[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
-
 model Category {
-  id            String   @id @default(uuid())
-  name          String   @unique
-  icon          String   @unique
-  gradientFrom  String   @unique
-  gradientTo    String   @unique
-  image         String?  @unique
+  id           String  @id @default(uuid())
+  name         String  @unique
+  icon         String  @unique
+  gradientFrom String  @unique
+  gradientTo   String  @unique
+  image        String? @unique
 
-  products      Product[]
+  products Product[]
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId]) // prevent duplicates
 }
