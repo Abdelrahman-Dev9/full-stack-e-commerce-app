@@ -219,13 +219,9 @@ export const getProfile = async (
   }
 };
 
-export const updateProfile = async (
-  req: Request & { user?: { id: string } },
-  res: Response
-) => {
+export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const { name, avatarUrl } = req.body;
-    const userId = req.user?.id;
+    const { userId, name, avatarUrl } = req.body;
 
     const updatedUser = await prisma.user.update({
       where: {
@@ -242,7 +238,7 @@ export const updateProfile = async (
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong" });
+    res.status(500).json(error);
   }
 };
 
