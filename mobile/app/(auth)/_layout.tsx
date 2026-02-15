@@ -1,5 +1,8 @@
 import { Stack } from "expo-router";
-import "../global.css";
-export default function RootLayout() {
+import React from "react";
+
+const _layout = () => {
   return <Stack screenOptions={{ headerShown: false }} />;
-}
+};
+
+export default _layout;
