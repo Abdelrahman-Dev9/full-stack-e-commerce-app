@@ -181,21 +181,13 @@ const VerifyCode = () => {
             onPress={handleSubmit(handleVerifyCode)}
             disabled={isLoading || isDisabled}
           >
-            <LinearGradient
-              colors={["#3B82F6", "#2563EB"]}
-              className="items-center py-5 rounded-full"
-              style={{
-                opacity: isLoading || isDisabled ? 0.5 : 1,
-              }}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-lg font-bold text-white">
-                  Verify Code
-                </Text>
-              )}
-            </LinearGradient>
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-lg font-bold text-white bg-[#3B82F6] p-4 rounded-full text-center">
+                Verify Code
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
 
