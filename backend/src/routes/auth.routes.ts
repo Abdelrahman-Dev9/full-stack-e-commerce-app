@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   forgotPassword,
   login,
-  verifyResetCode,
   signup,
   resetPassword,
   getProfile,
@@ -11,6 +10,8 @@ import {
   getAddress,
   updateAddress,
   deleteAddress,
+  verifyCode,
+  resetCode,
 } from "../controllers/auth.controller";
 import { protect } from "../middleware/auth.middleware";
 import { validation } from "../middleware/validations";
@@ -33,11 +34,8 @@ router.post(
   validation(forgotPasswordSchema),
   forgotPassword
 );
-router.post(
-  "/verifyResetCode",
-  validation(verifyResetCodeSchema),
-  verifyResetCode
-);
+router.post("/verifyCode", validation(verifyResetCodeSchema), verifyCode);
+router.post("/resetCode", resetCode);
 router.post("/resetPassword", validation(resetPasswordSchema), resetPassword);
 router.get("/profile", protect, getProfile);
 router.put(
