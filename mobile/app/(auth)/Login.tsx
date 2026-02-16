@@ -49,7 +49,7 @@ const Login = () => {
       console.log("Login success", res);
 
       // 👉 navigate after success
-      router.replace("/(tabs)/home");
+      router.replace("/(tabs)/Home");
     } catch (error: any) {
       console.log("Login error:", error?.data || error);
     }
