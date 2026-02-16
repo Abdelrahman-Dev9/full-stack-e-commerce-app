@@ -1,5 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -14,7 +13,10 @@ import {
   View,
 } from "react-native";
 
-import { useVerifyCodeMutation } from "@/src/services/authApi";
+import {
+  useResetCodeMutation,
+  useVerifyCodeMutation,
+} from "@/src/services/authApi";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -32,9 +34,10 @@ const VerifyCode = () => {
 
   const [verifyCode, { isLoading }] = useVerifyCodeMutation();
   const { email } = useLocalSearchParams();
+  const [resetCode] = useResetCodeMutation();
 
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [countdown, setCountdown] = useState(3600);
+  const [countdown, setCountdown] = useState(10);
 
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
@@ -99,12 +102,18 @@ const VerifyCode = () => {
   };
 
   const handleResendCode = async () => {
+    try {
+      await resetCode({
+        email: email,
+      }).unwrap();
+      Alert.alert("Success", "Code resent to your email");
+      setCountdown(60);
+      setDigits(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    } catch (error) {
+      console.log(error);
+    }
     if (countdown > 0) return;
-
-    Alert.alert("Success", "Code resent");
-    setCountdown(60);
-    setDigits(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
   };
 
   const isDisabled = digits.some((d) => d === "");

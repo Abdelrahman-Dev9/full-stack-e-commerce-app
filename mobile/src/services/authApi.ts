@@ -26,7 +26,14 @@ export const authApi = baseApi.injectEndpoints({
     }),
     verifyCode: builder.mutation({
       query: (data) => ({
-        url: "/auth/verifyResetCode",
+        url: "/auth/verifyCode",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resetCode: builder.mutation({
+      query: (data) => ({
+        url: "/auth/resetCode",
         method: "POST",
         body: data,
       }),
@@ -39,4 +46,5 @@ export const {
   useLoginMutation,
   useForgetPasswordMutation,
   useVerifyCodeMutation,
+  useResetCodeMutation,
 } = authApi;
