@@ -34,7 +34,7 @@ const VerifyCode = () => {
   const { email } = useLocalSearchParams();
 
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(3600);
 
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
@@ -184,7 +184,7 @@ const VerifyCode = () => {
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-lg font-bold text-white bg-[#3B82F6] p-4 rounded-full text-center">
+              <Text className="text-lg font-bold text-white bg-[#3B82F6] p-4 rounded-full text-center mt-5">
                 Verify Code
               </Text>
             )}
