@@ -43,10 +43,13 @@ const ForgotPassword = () => {
   // ✅ Submit
   const handleResetPassword = async (data: FormData) => {
     try {
-      await forgetPassword(data).unwrap();
+      await forgetPassword({ email: data.email }).unwrap();
 
       Alert.alert("Success", "Check your email for reset code");
-      router.push("/(auth)/VerifyCode");
+      router.push({
+        pathname: "/(auth)/VerifyCode",
+        params: { email: data.email },
+      });
 
       // 👉 navigate to verify screen (optional)
       // router.push({
@@ -122,7 +125,7 @@ const ForgotPassword = () => {
 
                   <TextInput
                     className="w-full bg-white/50 border-2 border-[#E5E7EB] rounded-full py-5 pl-16 pr-5 text-base"
-                    placeholder="john@example.com"
+                    placeholder="Enter your email"
                     placeholderTextColor="#9CA3AF"
                     keyboardType="email-address"
                     autoCapitalize="none"

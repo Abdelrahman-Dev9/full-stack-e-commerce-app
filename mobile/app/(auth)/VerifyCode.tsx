@@ -1,24 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Platform,
-  KeyboardAvoidingView,
-  Alert,
-  ActivityIndicator,
+  View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 
 import { useVerifyCodeMutation } from "@/src/services/authApi";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 // ✅ Validation Schema
 const schema = z.object({
@@ -27,10 +27,11 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function VerifyCodeScreen() {
+const VerifyCode = () => {
   const router = useRouter();
 
   const [verifyCode, { isLoading }] = useVerifyCodeMutation();
+  const { email } = useLocalSearchParams();
 
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const [countdown, setCountdown] = useState(60);
@@ -76,17 +77,17 @@ export default function VerifyCodeScreen() {
   };
 
   // Verify submit
-  const onSubmit = async (data: FormData) => {
+  const handleVerifyCode = async (data: FormData) => {
     try {
       await verifyCode({
-        email: "abdoelnagar198@gmail.com",
+        email: email,
         code: data.code,
       }).unwrap();
 
       Alert.alert("Success", "Code verified", [
         {
           text: "Continue",
-          onPress: () => router.replace("/(auth)/Login"),
+          onPress: () => router.replace("/(auth)/CreateNewPassword"),
         },
       ]);
     } catch (error: any) {
@@ -145,6 +146,7 @@ export default function VerifyCodeScreen() {
           <Text className="text-base text-[#9CA3AF] text-center">
             Enter the 6-digit code we sent to your email
           </Text>
+          <Text className="text-base text-[#9CA3AF] text-center">{email}</Text>
         </View>
 
         {/* OTP */}
@@ -176,7 +178,7 @@ export default function VerifyCodeScreen() {
 
           {/* Verify Button */}
           <TouchableOpacity
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(handleVerifyCode)}
             disabled={isLoading || isDisabled}
           >
             <LinearGradient
@@ -216,4 +218,6 @@ export default function VerifyCodeScreen() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
+};
+
+export default VerifyCode;
