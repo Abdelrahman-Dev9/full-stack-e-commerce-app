@@ -9,11 +9,12 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignupMutation } from "@/src/services/authApi";
+import { useRouter } from "expo-router";
 
 const schema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -25,6 +26,8 @@ type FormData = z.infer<typeof schema>;
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [signup] = useSignupMutation();
+  const router = useRouter();
 
   const {
     control,
@@ -35,8 +38,14 @@ const SignUp = () => {
     mode: "onChange",
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log("FORM DATA:", data);
+  const handleSignup = async (data: FormData) => {
+    try {
+      const res = await signup(data).unwrap();
+
+      console.log("Signup success", res);
+    } catch (error) {
+      console.log("Signup error", error);
+    }
   };
 
   return (
@@ -216,7 +225,7 @@ const SignUp = () => {
           {/* Sign In Button */}
           <TouchableOpacity
             className="mb-6"
-            onPress={handleSubmit(onSubmit)}
+            onPress={handleSubmit(handleSignup)}
             disabled={!isValid}
           >
             <Text
@@ -265,14 +274,13 @@ const SignUp = () => {
               <Text className="text-base text-[#6B7280]">
                 Don{"'"}t have an account?
               </Text>
-              <Link href="/(auth)/Login" asChild>
-                <TouchableOpacity>
-                  <Text className="text-base text-[#3B82F6] font-bold">
-                    {" "}
-                    Login
-                  </Text>
-                </TouchableOpacity>
-              </Link>
+
+              <TouchableOpacity onPress={() => router.push("/(auth)/Login")}>
+                <Text className="text-base text-[#3B82F6] font-bold">
+                  {" "}
+                  Login
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>

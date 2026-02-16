@@ -7,16 +7,18 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLoginMutation } from "@/src/services/authApi";
 
+// ✅ Validation Schema (FIXED)
 const schema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -25,6 +27,10 @@ type FormData = z.infer<typeof schema>;
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+
+  const [login, { isLoading }] = useLoginMutation();
+
+  const router = useRouter();
 
   const {
     control,
@@ -35,8 +41,18 @@ const Login = () => {
     mode: "onChange",
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log("FORM DATA:", data);
+  // ✅ Login Handler
+  const handleLogin = async (data: FormData) => {
+    try {
+      const res = await login(data).unwrap();
+
+      console.log("Login success", res);
+
+      // 👉 navigate after success
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
+      console.log("Login error:", error?.data || error);
+    }
   };
 
   return (
@@ -53,7 +69,7 @@ const Login = () => {
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Diamond Icon */}
+        {/* Icon */}
         <View className="items-center mb-8">
           <View
             className="w-24 h-24 rounded-3xl bg-[#3B82F6] items-center justify-center"
@@ -75,11 +91,11 @@ const Login = () => {
             Welcome Back
           </Text>
           <Text className="text-base text-[#9CA3AF] font-medium">
-            Sign in to access your premium account
+            Sign in to access your account
           </Text>
         </View>
 
-        {/* Form */}
+        {/* FORM */}
         <View className="mb-6">
           {/* EMAIL */}
           <Controller
@@ -130,7 +146,12 @@ const Login = () => {
                   <Text className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider">
                     Password
                   </Text>
-                  <TouchableOpacity>
+
+                  {/* ✅ Forgot Password Link */}
+
+                  <TouchableOpacity
+                    onPress={() => router.push("/(auth)/ForgotPassword")}
+                  >
                     <Text className="text-sm font-semibold text-[#3B82F6]">
                       Forgot Password?
                     </Text>
@@ -176,22 +197,28 @@ const Login = () => {
             )}
           />
 
-          {/* Sign In Button */}
+          {/* BUTTON */}
           <TouchableOpacity
             className="mb-6"
-            onPress={handleSubmit(onSubmit)}
-            disabled={!isValid}
+            onPress={handleSubmit(handleLogin)}
+            disabled={!isValid || isLoading}
           >
-            <Text
-              className={`text-xl font-semibold text-white p-4 text-center rounded-full ${
+            <View
+              className={`p-4 rounded-full items-center ${
                 isValid ? "bg-[#3B82F6]" : "bg-gray-400"
               }`}
             >
-              Sign In
-            </Text>
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-xl font-semibold text-white">
+                  Sign In
+                </Text>
+              )}
+            </View>
           </TouchableOpacity>
 
-          {/* Divider */}
+          {/* DIVIDER */}
           <View className="flex-row items-center mb-8">
             <View className="flex-1 h-[1px] bg-[#E5E7EB]" />
             <Text className="text-xs font-medium text-[#D1D5DB] mx-4 uppercase tracking-widest">
@@ -200,41 +227,30 @@ const Login = () => {
             <View className="flex-1 h-[1px] bg-[#E5E7EB]" />
           </View>
 
-          {/* Social Login Buttons */}
+          {/* SOCIAL */}
           <View className="flex-row justify-center gap-4 mb-8">
-            <TouchableOpacity className=" bg-white border-2 border-[#E5E7EB] rounded-full py-4 flex-row items-center justify-center ">
-              <View>
-                <Text style={{ fontSize: 20 }} className="px-8 py-1">
-                  G
-                </Text>
-              </View>
+            <TouchableOpacity className="bg-white border-2 border-[#E5E7EB] rounded-full py-4 px-8">
+              <Text style={{ fontSize: 20 }}>G</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="flex-row items-center justify-center py-6 bg-black rounded-full">
-              <MaterialIcons
-                name="apple"
-                size={20}
-                color="#FFFFFF"
-                // style={{ marginRight: 12 }}
-                className="px-8 py-1"
-              />
+            <TouchableOpacity className="px-8 py-4 bg-black rounded-full">
+              <MaterialIcons name="apple" size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
-          {/* Footer */}
+          {/* FOOTER */}
           <View className="items-center">
             <View className="flex-row items-center">
               <Text className="text-base text-[#6B7280]">
                 Don{"'"}t have an account?
               </Text>
-              <Link href="/(auth)/SignUp" asChild>
-                <TouchableOpacity>
-                  <Text className="text-base text-[#3B82F6] font-bold">
-                    {" "}
-                    Register
-                  </Text>
-                </TouchableOpacity>
-              </Link>
+
+              <TouchableOpacity onPress={() => router.push("/(auth)/SignUp")}>
+                <Text className="text-base text-[#3B82F6] font-bold">
+                  {" "}
+                  Register
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
