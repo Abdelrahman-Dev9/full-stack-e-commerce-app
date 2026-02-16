@@ -46,6 +46,7 @@ const ForgotPassword = () => {
       await forgetPassword(data).unwrap();
 
       Alert.alert("Success", "Check your email for reset code");
+      router.push("/(auth)/VerifyCode");
 
       // 👉 navigate to verify screen (optional)
       // router.push({
