@@ -176,7 +176,9 @@ const SignUp = () => {
                   <Text className="text-sm font-semibold text-[#6B7280] uppercase tracking-wider">
                     Password
                   </Text>
-                  <TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => router.push("/(auth)/ForgotPassword")}
+                  >
                     <Text className="text-sm font-semibold text-[#3B82F6]">
                       Forgot Password?
                     </Text>
@@ -233,7 +235,7 @@ const SignUp = () => {
                 isValid ? "bg-[#3B82F6]" : "bg-gray-400"
               }`}
             >
-              Sign In
+              Register
             </Text>
           </TouchableOpacity>
 
