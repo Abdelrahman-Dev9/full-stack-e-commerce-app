@@ -82,15 +82,20 @@ const VerifyCode = () => {
   // Verify submit
   const handleVerifyCode = async (data: FormData) => {
     try {
-      await verifyCode({
+      const res = await verifyCode({
         email: email,
         code: data.code,
       }).unwrap();
 
+      const resetToken = res.resetToken;
       Alert.alert("Success", "Code verified", [
         {
           text: "Continue",
-          onPress: () => router.replace("/(auth)/CreateNewPassword"),
+          onPress: () =>
+            router.replace({
+              pathname: "/CreateNewPassword",
+              params: { resetToken },
+            }),
         },
       ]);
     } catch (error: any) {
