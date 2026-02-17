@@ -39,6 +39,25 @@ export const getCategory = async (req: Request, res: Response) => {
     res.status(500).json(error);
   }
 };
+export const getCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        icon: true,
+        gradientFrom: true,
+        gradientTo: true,
+        image: true,
+      },
+    });
+    res
+      .status(200)
+      .json({ message: "Categories fetched successfully", categories });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 export const addCategory = async (req: Request, res: Response) => {
   try {
     const { name, icon, gradientFrom, gradientTo, image } = req.body;

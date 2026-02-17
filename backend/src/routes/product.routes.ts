@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   addCategory,
   addProduct,
+  getCategories,
   getCategory,
 } from "../controllers/product.controller";
 import { validation } from "../middleware/validations";
@@ -16,5 +17,6 @@ const productRouter = Router();
 productRouter.post("/addProduct", validation(addProductSchema), addProduct);
 productRouter.post("/addCategory", validation(addCategorySchema), addCategory);
 productRouter.get("/getCategory", validation(getCategorySchema), getCategory);
+productRouter.get("/getCategories", getCategories);
 
 export default productRouter;
