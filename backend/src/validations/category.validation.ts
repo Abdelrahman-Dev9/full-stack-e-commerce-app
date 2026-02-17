@@ -6,7 +6,7 @@ export const getCategorySchema = z.object({
 
 export const addCategorySchema = z.object({
   name: z.string().min(3),
-  icon: z.string().min(3),
+  icon: z.string().url().min(3),
   gradientFrom: z.string().min(3),
   gradientTo: z.string().min(3),
   image: z.string().min(3),
