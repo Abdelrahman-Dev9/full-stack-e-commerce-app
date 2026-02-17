@@ -9,7 +9,7 @@ export const addCategorySchema = z.object({
   icon: z.string().url().min(3),
   gradientFrom: z.string().min(3),
   gradientTo: z.string().min(3),
-  image: z.string().min(3),
+  image: z.string().min(3).optional(),
 });
 
 // export const updateCategorySchema = z.object({
