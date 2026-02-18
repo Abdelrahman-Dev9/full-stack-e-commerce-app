@@ -12,7 +12,7 @@ import {
 
 const wishListRouter = Router();
 
-wishListRouter.get("/getWishList", validation(getWishListSchema), getWishList);
+wishListRouter.post("/getWishList", validation(getWishListSchema), getWishList);
 wishListRouter.post(
   "/addToWishlist",
   validation(wishListSchema),
