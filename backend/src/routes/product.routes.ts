@@ -3,7 +3,7 @@ import {
   addCategory,
   addProduct,
   getCategories,
-  getCategory,
+  getProductsByCategory,
 } from "../controllers/product.controller";
 import { validation } from "../middleware/validations";
 import {
@@ -16,7 +16,11 @@ const productRouter = Router();
 
 productRouter.post("/addProduct", validation(addProductSchema), addProduct);
 productRouter.post("/addCategory", validation(addCategorySchema), addCategory);
-productRouter.get("/getCategory", validation(getCategorySchema), getCategory);
+productRouter.post(
+  "/getProductsByCategory",
+  validation(getCategorySchema),
+  getProductsByCategory
+);
 productRouter.get("/getCategories", getCategories);
 
 export default productRouter;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma/client";
 
-export const getCategory = async (req: Request, res: Response) => {
+export const getProductsByCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
 
@@ -13,23 +13,12 @@ export const getCategory = async (req: Request, res: Response) => {
     if (!category) {
       return res.status(401).json({ message: "this category not found" });
     }
-    const products = await prisma.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        image: true,
-        discount: true,
-        category: {
-          select: {
-            name: true,
-            icon: true,
-            gradientFrom: true,
-            gradientTo: true,
-            image: true,
-          },
-        },
+    const products = await prisma.category.findMany({
+      where: {
+        id,
+      },
+      include: {
+        products: true,
       },
     });
     res

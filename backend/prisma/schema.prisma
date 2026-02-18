@@ -76,8 +76,8 @@ model Category {
   id           String  @id @default(uuid())
   name         String  @unique
   icon         String  @unique
-  gradientFrom String  @unique
-  gradientTo   String  @unique
+  gradientFrom String?  @unique
+  gradientTo   String?  @unique
   image        String? @unique
 
   products Product[]
