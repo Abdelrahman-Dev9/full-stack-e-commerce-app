@@ -10,9 +10,11 @@ const _layout = () => {
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="home/[id]" options={{ href: null }} />
       <Tabs.Screen
-        name="Home"
+        name="home/index"
         options={{
+          title: "Home",
           tabBarIcon: ({ color, size, focused }) => (
             <MaterialIcons
               name="home"

@@ -1,119 +1,113 @@
-// import { View, Text, Image } from "react-native";
-// import React from "react";
-// import { SafeAreaView } from "react-native-safe-area-context";
-
-// const Home = () => {
-//   return (
-//     <SafeAreaView className="flex-1 bg-black">
-//       {/* ── Header ── */}
-//       <View className="flex-row items-center justify-between ">
-//         <View>
-//           <Text className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-medium">
-//             Welcome back
-//           </Text>
-//           <Text className="text-2xl font-bold tracking-tight text-white">
-//             Alexander
-//           </Text>
-//         </View>
-
-//         {/* Avatar with glow */}
-//         <View>
-//           <View
-//             className="absolute inset-0 rounded-full"
-//             style={{
-//               backgroundColor: "#0d7ff2",
-//               opacity: 0.4,
-//               borderRadius: 999,
-//               transform: [{ scale: 1.15 }],
-//             }}
-//           />
-//           <Image
-//             source={{
-//               uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-//             }}
-//             className="w-12 h-12 rounded-full"
-//             style={{ borderWidth: 2, borderColor: "#0d7ff2" }}
-//           />
-//         </View>
-//       </View>
-//     </SafeAreaView>
-//   );
-// };
-
-// export default Home;
-
+import { useGetCategoriesQuery } from "@/src/services/categoriesApi";
+import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from "expo-router";
 import {
-  View,
-  Text,
-  TextInput,
+  Image,
   ImageBackground,
   ScrollView,
+  Text,
+  TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { MaterialIcons } from "@expo/vector-icons";
 
-const Home = () => {
+function CategoryChip({ category, isActive, onPress }: any) {
+  return (
+    <TouchableOpacity onPress={onPress} className="items-center mr-5">
+      <View
+        className="items-center justify-center mb-2 rounded-full w-14 h-14"
+        style={{
+          backgroundColor: isActive ? "#3B82F6" : "#F3F4F6",
+          shadowColor: isActive ? "#3B82F6" : "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: isActive ? 0.3 : 0.05,
+          shadowRadius: isActive ? 8 : 4,
+          elevation: isActive ? 4 : 1,
+        }}
+      >
+        <Image
+          source={{ uri: category.icon }}
+          className="w-7 h-7"
+          resizeMode="contain"
+          style={{ tintColor: isActive ? "#fff" : "#6B7280" }}
+        />
+      </View>
+      <Text
+        className="text-[10px] font-semibold"
+        style={{ color: isActive ? "#3B82F6" : "#6B7280" }}
+      >
+        {category.name}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const Index = () => {
+  const { data: categories, isLoading, error } = useGetCategoriesQuery();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  if (isLoading) return <Text>Loading...</Text>;
+
+  if (error) return <Text>Error loading categories</Text>;
+
   return (
     <View className="flex-1 bg-white">
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-6 pt-12 pb-4">
+        <View>
+          <Text className="text-xs tracking-widest text-gray-500 uppercase">
+            Welcome back
+          </Text>
+          <Text className="text-2xl font-bold text-gray-900">Alexander</Text>
+        </View>
+
+        <ImageBackground
+          source={{
+            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
+          }}
+          className="w-12 h-12 overflow-hidden rounded-full"
+        />
+      </View>
+
+      {/* Search */}
+      <View className="px-6 py-4">
+        <View className="flex-row items-center px-4 bg-gray-100 rounded-xl h-14">
+          <MaterialIcons name="search" size={22} color="#9ca3af" />
+          <TextInput
+            placeholder="Search luxury collections"
+            className="flex-1 ml-3 text-base"
+          />
+        </View>
+      </View>
+
+      {/* Categories */}
+
+      {/* Categories Horizontal Scroll */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="mb-5"
+        contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 8 }}
+      >
+        {categories?.map((category) => (
+          <CategoryChip
+            key={category.id}
+            category={category}
+            isActive={id === category.id}
+            onPress={() => {
+              router.replace(`/home/${category.id}`);
+            }}
+          />
+        ))}
+      </ScrollView>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-6 pt-12 pb-4">
-          <View>
-            <Text className="text-xs tracking-widest text-gray-500 uppercase">
-              Welcome back
-            </Text>
-            <Text className="text-2xl font-bold text-gray-900">Alexander</Text>
-          </View>
-
-          <ImageBackground
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-            }}
-            className="w-12 h-12 overflow-hidden rounded-full"
-          />
-        </View>
-
-        {/* Search */}
-        <View className="px-6 py-4">
-          <View className="flex-row items-center px-4 bg-gray-100 rounded-xl h-14">
-            <MaterialIcons name="search" size={22} color="#9ca3af" />
-            <TextInput
-              placeholder="Search luxury collections"
-              className="flex-1 ml-3 text-base"
-            />
-          </View>
-        </View>
-
-        {/* Categories */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="px-6"
-        >
-          {["New In", "Timepieces", "Apparel", "Jewelry", "Travel"].map(
-            (item, index) => (
-              <View key={index} className="items-center mr-4">
-                <LinearGradient
-                  colors={["#0d7ff2", "#2563eb"]}
-                  className="items-center justify-center w-16 h-16 rounded-full"
-                >
-                  <MaterialIcons name="auto-awesome" size={24} color="white" />
-                </LinearGradient>
-
-                <Text className="text-[10px] mt-2 font-bold uppercase text-blue-500">
-                  {item}
-                </Text>
-              </View>
-            )
-          )}
-        </ScrollView>
-
         {/* Featured */}
-        <View className="px-6 mt-8">
+        <View className="px-6 mt-4">
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-xl font-bold">Editor{"'"}s Spotlight</Text>
             <Text className="font-semibold text-blue-500">View Gallery</Text>
@@ -202,4 +196,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Index;
