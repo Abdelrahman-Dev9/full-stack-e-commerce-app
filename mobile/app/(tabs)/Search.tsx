@@ -9,7 +9,7 @@ const Search = () => {
   return (
     <View>
       {/* Header */}
-      <View className="px-4 pb-4 border-b border-gray-100">
+      <View className="px-4 pb-4 mt-20 border-b border-gray-100">
         <View className="flex-row items-center gap-3 mb-4">
           <TouchableOpacity
             onPress={() => router.back()}

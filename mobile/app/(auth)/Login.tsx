@@ -16,6 +16,9 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/src/services/authApi";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/src/store/store";
+import { setUserId } from "@/src/store/authSlice";
 
 // ✅ Validation Schema (FIXED)
 const schema = z.object({
@@ -41,15 +44,22 @@ const Login = () => {
     mode: "onChange",
   });
 
+  const dispatch = useDispatch<AppDispatch>();
+
   // ✅ Login Handler
   const handleLogin = async (data: FormData) => {
     try {
       const res = await login(data).unwrap();
 
-      console.log("Login success", res);
+      // console.log("Login success", res);
+      // console.log("Login success", res.data.id);
 
       // 👉 navigate after success
-      router.replace("/(tabs)/Home");
+      router.replace("/(tabs)/home");
+
+      dispatch(setUserId(res.data.id));
+
+      // console.log(res);
     } catch (error: any) {
       console.log("Login error:", error?.data || error);
     }
