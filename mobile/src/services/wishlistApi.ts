@@ -2,9 +2,13 @@ import { baseApi } from "./baseApi";
 
 export const wishListApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // getWishList: builder.query({
-    //     query: () => "/wishList",
-    // }),
+    getWishList: builder.query({
+      query: (userId) => ({
+        url: "/getWishList",
+        method: "POST",
+        body: { userId },
+      }),
+    }),
     addToWishList: builder.mutation({
       query: ({ userId, productId }) => ({
         url: "/addToWishlist",
@@ -21,4 +25,4 @@ export const wishListApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useAddToWishListMutation } = wishListApi;
+export const { useAddToWishListMutation, useGetWishListQuery } = wishListApi;
