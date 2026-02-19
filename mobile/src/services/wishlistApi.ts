@@ -17,13 +17,18 @@ export const wishListApi = baseApi.injectEndpoints({
         body: { userId, productId },
       }),
     }),
-    // removeFromWishList: builder.mutation({
-    //     query: (id) => ({
-    //         url: `/wishList/${id}`,
-    //         method: "DELETE",
-    //     }),
-    // }),
+    removeFromWishList: builder.mutation({
+      query: ({ userId, productId }) => ({
+        url: `/deleteFromWishlist`,
+        method: "DELETE",
+        body: { userId, productId },
+      }),
+    }),
   }),
 });
 
-export const { useAddToWishListMutation, useGetWishListQuery } = wishListApi;
+export const {
+  useAddToWishListMutation,
+  useGetWishListQuery,
+  useRemoveFromWishListMutation,
+} = wishListApi;

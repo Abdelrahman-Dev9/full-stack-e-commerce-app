@@ -15,7 +15,10 @@ import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RootState } from "@/src/store/store";
-import { useGetWishListQuery } from "@/src/services/wishlistApi";
+import {
+  useGetWishListQuery,
+  useRemoveFromWishListMutation,
+} from "@/src/services/wishlistApi";
 
 // ─── Types ───────────────────────────────────────────────
 interface Product {
@@ -64,10 +67,10 @@ function WishlistCard({ item, onRemove, onMoveToCart }: CardProps) {
         />
 
         <TouchableOpacity
-          onPress={() => onRemove(item.id)}
-          className="absolute items-center justify-center w-10 h-10 bg-white rounded-full top-3 right-3"
+          onPress={() => onRemove(item.product.id)}
+          className="absolute items-center justify-center w-10 h-10 bg-blue-100 rounded-full top-3 right-3"
         >
-          <MaterialIcons name="favorite" size={20} color="#007AFF" />
+          <MaterialIcons name="favorite" size={20} color="red" />
         </TouchableOpacity>
       </View>
 
@@ -171,10 +174,27 @@ const WishListScreen: React.FC = () => {
 
   const wishlistItems: WishlistItem[] = data?.items || [];
 
-  const handleRemoveItem = (itemId: string) => {
+  const [removeProduct] = useRemoveFromWishListMutation();
+
+  const handleRemoveItem = (productId: string) => {
     Alert.alert("Remove Item", "Are you sure you want to remove this item?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => refetch() },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await removeProduct({
+              userId: userId,
+              productId: productId,
+            }).unwrap();
+            refetch(); // refresh the list after removal
+          } catch (error) {
+            console.log("Remove error ❌", error);
+            Alert.alert("Error", "Failed to remove item.");
+          }
+        },
+      },
     ]);
   };
 
