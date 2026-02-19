@@ -9,7 +9,7 @@ import { cartSchema, getCartSchema } from "../validations/cart.validation";
 
 const cartRouter = Router();
 
-cartRouter.get("/getCartProducts", validation(getCartSchema), getCartProducts);
+cartRouter.post("/getCartProducts", validation(getCartSchema), getCartProducts);
 cartRouter.post("/addProductToCart", validation(cartSchema), addProductToCart);
 cartRouter.delete(
   "/removeProductFromCart",
