@@ -87,7 +87,7 @@ function WishlistCard({ item, onRemove, onMoveToCart }: CardProps) {
         </Text>
 
         <Text className="text-lg font-bold text-[#007AFF] mb-3">
-          ${item.product.price}
+          {item.product.price}
         </Text>
 
         <TouchableOpacity

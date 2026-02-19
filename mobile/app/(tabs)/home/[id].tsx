@@ -450,7 +450,7 @@ function ProductCard({
         </Text>
 
         <Text className="text-lg font-bold text-[#3B82F6]">
-          ${product.price}
+          {product.price}
         </Text>
       </View>
     </View>
