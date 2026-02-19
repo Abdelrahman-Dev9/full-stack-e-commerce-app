@@ -8,6 +8,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -51,17 +52,19 @@ const Login = () => {
     try {
       const res = await login(data).unwrap();
 
-      // console.log("Login success", res);
-      // console.log("Login success", res.data.id);
-
-      // 👉 navigate after success
-      router.replace("/(tabs)/home");
-
+      // ✅ Save userId first
       dispatch(setUserId(res.data.id));
 
-      // console.log(res);
+      Alert.alert("Success", "Login successful!", [
+        {
+          text: "Continue",
+          onPress: () => router.replace("/(tabs)/home"),
+        },
+      ]);
     } catch (error: any) {
-      console.log("Login error:", error?.data || error);
+      const message = error?.data?.message || error?.message || "Login failed";
+
+      Alert.alert("Error", message);
     }
   };
 

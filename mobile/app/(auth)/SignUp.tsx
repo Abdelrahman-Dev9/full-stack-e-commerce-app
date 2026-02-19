@@ -7,6 +7,8 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -26,7 +28,7 @@ type FormData = z.infer<typeof schema>;
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [signup] = useSignupMutation();
+  const [signup, { isLoading }] = useSignupMutation();
   const router = useRouter();
 
   const {
@@ -40,11 +42,19 @@ const SignUp = () => {
 
   const handleSignup = async (data: FormData) => {
     try {
-      const res = await signup(data).unwrap();
+      await signup(data).unwrap();
 
-      console.log("Signup success", res);
-    } catch (error) {
-      console.log("Signup error", error);
+      Alert.alert("Success", "Account created successfully!", [
+        {
+          text: "Continue",
+          onPress: () => router.replace("/(auth)/Login"),
+        },
+      ]);
+    } catch (error: any) {
+      const message =
+        error?.data?.message || error?.message || "Failed to create account";
+
+      Alert.alert("Error", message, [{ text: "OK", style: "cancel" }]);
     }
   };
 
@@ -224,8 +234,8 @@ const SignUp = () => {
             )}
           />
 
-          {/* Sign In Button */}
-          <TouchableOpacity
+          {/* Register Button */}
+          {/* <TouchableOpacity
             className="mb-6"
             onPress={handleSubmit(handleSignup)}
             disabled={!isValid}
@@ -237,6 +247,25 @@ const SignUp = () => {
             >
               Register
             </Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            className="mb-6"
+            onPress={handleSubmit(handleSignup)}
+            disabled={!isValid || isLoading}
+          >
+            <View
+              className={`p-4 rounded-full items-center ${
+                isValid ? "bg-[#3B82F6]" : "bg-gray-400"
+              }`}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-xl font-semibold text-white">
+                  Register
+                </Text>
+              )}
+            </View>
           </TouchableOpacity>
 
           {/* Divider */}
