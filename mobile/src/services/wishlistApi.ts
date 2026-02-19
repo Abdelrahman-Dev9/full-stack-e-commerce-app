@@ -8,6 +8,7 @@ export const wishListApi = baseApi.injectEndpoints({
         method: "POST",
         body: { userId },
       }),
+      providesTags: ["Wishlist"],
     }),
     addToWishList: builder.mutation({
       query: ({ userId, productId }) => ({
