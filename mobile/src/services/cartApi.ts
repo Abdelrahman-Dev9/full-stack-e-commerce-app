@@ -9,7 +9,14 @@ export const cartApi = baseApi.injectEndpoints({
         body: { userId, productId },
       }),
     }),
+    getCart: builder.mutation({
+      query: ({ userId }) => ({
+        url: "/getCartProducts",
+        method: "POST",
+        body: { userId },
+      }),
+    }),
   }),
 });
 
-export const { useAddToCartMutation } = cartApi;
+export const { useAddToCartMutation, useGetCartMutation } = cartApi;
