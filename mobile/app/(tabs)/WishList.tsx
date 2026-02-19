@@ -127,7 +127,7 @@ function FirstItemCard({ item, onRemove, onMoveToCart }: CardProps) {
           </Text>
 
           <Text className="text-xl font-bold text-[#007AFF] mb-4">
-            ${item.product.price}
+            {item.product.price}
           </Text>
 
           <TouchableOpacity
