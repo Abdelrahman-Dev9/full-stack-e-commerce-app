@@ -56,7 +56,7 @@ export const WishlistCard = ({ item, onRemove, onMoveToCart }: CardProps) => {
           onPress={() => onMoveToCart(item.id)}
           className="w-full py-2.5 rounded-full bg-[#007AFF] items-center"
         >
-          <Text className="text-xs font-bold tracking-wider text-white uppercase">
+          <Text className="px-4 py-2 text-sm font-bold tracking-wider text-white uppercase">
             Move to Cart
           </Text>
         </TouchableOpacity>
