@@ -37,7 +37,7 @@ router.post(
 router.post("/verifyCode", validation(verifyResetCodeSchema), verifyCode);
 router.post("/resetCode", resetCode);
 router.post("/resetPassword", validation(resetPasswordSchema), resetPassword);
-router.get("/profile", protect, getProfile);
+router.post("/profile", protect, getProfile);
 router.put(
   "/updateProfile",
   protect,
