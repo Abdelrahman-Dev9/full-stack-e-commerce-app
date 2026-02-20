@@ -6,19 +6,46 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
+  Alert,
 } from "react-native";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useGetProfileQuery } from "@/src/services/profileApi";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/src/store/store";
+import { clearAuth } from "@/src/store/authSlice";
 
 const UserProfileScreen = () => {
   const router = useRouter();
+  const token = useSelector((state: RootState) => state.auth.token);
+  const { data: profileData, refetch: refetchProfile } =
+    useGetProfileQuery(token);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: () => {
+          dispatch(clearAuth());
+          router.replace("/Login");
+        },
+      },
+    ]);
+  };
 
   const user = {
-    name: "Alex Sterling",
-    status: "Premium Member",
+    name: profileData.name ?? "Your Name",
+    email: profileData.email ?? "your email",
     avatar:
-      "https://images.unsplash.com/photo-1603415526960-f7e0328e9999?auto=format&fit=crop&w=200&q=80",
+      profileData.avatarUrl ??
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
     balance: 14250.0,
     cardNumber: "8829",
     orders: {
@@ -72,7 +99,7 @@ const UserProfileScreen = () => {
           <Text className="mt-4 text-xl font-bold">{user.name}</Text>
 
           <View className="px-3 py-1 mt-1 bg-blue-100 rounded-full">
-            <Text className="text-sm text-blue-600">{user.status}</Text>
+            <Text className="text-sm text-blue-600">{user.email}</Text>
           </View>
         </View>
 
@@ -181,6 +208,7 @@ const UserProfileScreen = () => {
         <TouchableOpacity
           style={shadowStyle}
           className="items-center py-4 mx-4 mt-6 bg-white rounded-2xl"
+          onPress={handleLogout}
         >
           <Text className="font-semibold text-red-600">Log Out</Text>
         </TouchableOpacity>

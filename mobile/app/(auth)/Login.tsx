@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/src/services/authApi";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/src/store/store";
-import { setUserId } from "@/src/store/authSlice";
+import { setToken, setUserId } from "@/src/store/authSlice";
 
 // ✅ Validation Schema (FIXED)
 const schema = z.object({
@@ -54,6 +54,7 @@ const Login = () => {
 
       // ✅ Save userId first
       dispatch(setUserId(res.data.id));
+      dispatch(setToken(res.token));
 
       Alert.alert("Success", "Login successful!", [
         {

@@ -1,4 +1,6 @@
 import { useGetCategoriesQuery } from "@/src/services/categoriesApi";
+import { useGetProfileQuery } from "@/src/services/profileApi";
+import { RootState } from "@/src/store/store";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -11,8 +13,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSelector } from "react-redux";
 
-function CategoryChip({ category, isActive, onPress }: any) {
+// Type for category
+interface CategoryChipProps {
+  category: { id: string | number; name: string; icon: string };
+  isActive: boolean;
+  onPress: () => void;
+}
+
+function CategoryChip({ category, isActive, onPress }: CategoryChipProps) {
   return (
     <TouchableOpacity onPress={onPress} className="items-center mr-5">
       <View
@@ -46,9 +56,20 @@ function CategoryChip({ category, isActive, onPress }: any) {
 const Index = () => {
   const { data: categories, isLoading, error } = useGetCategoriesQuery();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const token = useSelector((state: RootState) => state.auth.token);
+  const { data: profileData, refetch: refetchProfile } =
+    useGetProfileQuery(token);
+
+  const handleGetProfile = async () => {
+    try {
+      const result = await refetchProfile();
+      console.log(result.data?.name ?? "Profile not loaded");
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   if (isLoading) return <Text>Loading...</Text>;
-
   if (error) return <Text>Error loading categories</Text>;
 
   return (
@@ -59,15 +80,19 @@ const Index = () => {
           <Text className="text-xs tracking-widest text-gray-500 uppercase">
             Welcome back
           </Text>
-          <Text className="text-2xl font-bold text-gray-900">Alexander</Text>
+          <Text className="text-2xl font-bold text-gray-900">
+            {profileData?.name ?? "your name"}
+          </Text>
         </View>
 
-        <ImageBackground
-          source={{
-            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-          }}
-          className="w-12 h-12 overflow-hidden rounded-full"
-        />
+        <TouchableOpacity onPress={handleGetProfile}>
+          <ImageBackground
+            source={{
+              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
+            }}
+            className="w-12 h-12 overflow-hidden rounded-full"
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Search */}
@@ -81,8 +106,6 @@ const Index = () => {
         </View>
       </View>
 
-      {/* Categories */}
-
       {/* Categories Horizontal Scroll */}
       <ScrollView
         horizontal
@@ -94,10 +117,8 @@ const Index = () => {
           <CategoryChip
             key={category.id}
             category={category}
-            isActive={id === category.id}
-            onPress={() => {
-              router.replace(`/home/${category.id}`);
-            }}
+            isActive={id === String(category.id)}
+            onPress={() => router.replace(`/home/${category.id}`)}
           />
         ))}
       </ScrollView>
