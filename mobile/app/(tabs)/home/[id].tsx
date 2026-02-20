@@ -1,225 +1,24 @@
-import React, { useState, useEffect, useMemo } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-  Dimensions,
-  TextInput,
-  ImageBackground,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import CategoryChip from "@/src/components/CategoryChip";
+import ProductCard from "@/src/components/ProductCard";
+import { useAddToCartMutation } from "@/src/services/cartApi";
 import { useGetCategoriesQuery } from "@/src/services/categoriesApi";
 import { useGetProductsByCategoryMutation } from "@/src/services/productsApi";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAddToWishListMutation } from "@/src/services/wishlistApi";
-import { useAddToCartMutation } from "@/src/services/cartApi";
-import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  ImageBackground,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSelector } from "react-redux";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = (SCREEN_WIDTH - 48) / 2;
-
-// ─────────────────────────────────────────────
-// Product Card Component
-// ─────────────────────────────────────────────
-function ProductCard({
-  product,
-  onAddToWishlist,
-  onAddToCart,
-}: {
-  product: any;
-  onAddToWishlist: (id: string) => void;
-  onAddToCart: (id: string) => void;
-}) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const [loadingCart, setLoadingCart] = useState(false);
-
-  // Favorite (Wishlist) handler
-  const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    onAddToWishlist(product.id);
-  };
-
-  // Add to Cart handler
-  const handleCartPress = async () => {
-    if (addedToCart) return; // prevent multiple taps
-    setLoadingCart(true);
-    try {
-      await onAddToCart(product.id);
-      setAddedToCart(true);
-    } catch (err) {
-      console.log("Cart Error:", err);
-    } finally {
-      setLoadingCart(false);
-    }
-  };
-
-  return (
-    <View
-      style={{
-        width: CARD_WIDTH,
-        marginBottom: 16,
-        borderRadius: 16,
-        backgroundColor: "#fff",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
-    >
-      {/* Image & Favorite */}
-      <View style={{ position: "relative" }}>
-        <Image
-          source={{ uri: product.image }}
-          style={{
-            width: "100%",
-            height: CARD_WIDTH * 1.2,
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-          }}
-          resizeMode="cover"
-        />
-        <TouchableOpacity
-          onPress={handleFavorite}
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: "rgba(255,255,255,0.9)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <MaterialIcons
-            name={isFavorite ? "favorite" : "favorite-border"}
-            size={18}
-            color={isFavorite ? "#EF4444" : "#9CA3AF"}
-          />
-        </TouchableOpacity>
-      </View>
-
-      {/* Product Info */}
-      <View style={{ padding: 14 }}>
-        <Text
-          numberOfLines={1}
-          style={{ fontWeight: "bold", fontSize: 16, marginBottom: 2 }}
-        >
-          {product.name}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={{ fontSize: 12, color: "#6B7280", marginBottom: 8 }}
-        >
-          {product.description}
-        </Text>
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-            color: "#3B82F6",
-            marginBottom: 8,
-          }}
-        >
-          ${product.price}
-        </Text>
-
-        {/* Add to Cart Button */}
-        <TouchableOpacity
-          onPress={handleCartPress}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingVertical: 10,
-            borderRadius: 12,
-            backgroundColor: addedToCart ? "#10B981" : "#007AFF", // green if added
-          }}
-          disabled={loadingCart || addedToCart}
-        >
-          <MaterialIcons
-            name={addedToCart ? "check" : "shopping-bag"}
-            size={16}
-            color="#fff"
-          />
-          <Text
-            style={{
-              color: "#fff",
-              fontWeight: "bold",
-              marginLeft: 8,
-              fontSize: 12,
-            }}
-          >
-            {loadingCart ? "Adding..." : addedToCart ? "Added" : "Move to Cart"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Category Chip Component
-// ─────────────────────────────────────────────
-function CategoryChip({
-  category,
-  isActive,
-  onPress,
-}: {
-  category: any;
-  isActive: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{ alignItems: "center", marginRight: 20 }}
-    >
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 6,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: isActive ? "#3B82F6" : "#F3F4F6",
-        }}
-      >
-        <Image
-          source={{ uri: category.icon }}
-          style={{
-            width: 28,
-            height: 28,
-            tintColor: isActive ? "#fff" : "#6B7280",
-          }}
-          resizeMode="contain"
-        />
-      </View>
-      <Text
-        style={{
-          fontSize: 10,
-          fontWeight: "600",
-          color: isActive ? "#3B82F6" : "#6B7280",
-        }}
-      >
-        {category.name}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Main Screen
-// ─────────────────────────────────────────────
 const CategoryProductsScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
