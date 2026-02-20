@@ -62,6 +62,8 @@ model Product {
   price       String
   image       String? @unique
   discount    String?
+  favorite    Boolean @default(false)
+  addedToCart    Boolean @default(false)
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
