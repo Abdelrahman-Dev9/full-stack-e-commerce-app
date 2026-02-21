@@ -94,7 +94,7 @@ const UserProfileScreen = () => {
         const image = result.assets[0];
         const localUri = image.uri;
         const filename = image.fileName || localUri.split("/").pop();
-        const type = image.type || "image/jpeg";
+        const type = image.mimeType || "image/jpeg";
 
         setLocalAvatar(localUri); // Optimistic update
 
