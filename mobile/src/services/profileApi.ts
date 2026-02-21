@@ -11,7 +11,28 @@ export const profileApi = baseApi.injectEndpoints({
         },
       }),
     }),
+
+    uploadUserImage: builder.mutation<
+      { success: boolean; avatarUrl: string },
+      { userId: string; image: { uri: string; type: string; name: string } }
+    >({
+      query: ({ userId, image }) => {
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("image", {
+          uri: image.uri,
+          name: image.name,
+          type: image.type,
+        } as any);
+
+        return {
+          url: "/auth/uploadUserImage",
+          method: "PUT",
+          body: formData,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetProfileQuery } = profileApi;
+export const { useGetProfileQuery, useUploadUserImageMutation } = profileApi;
