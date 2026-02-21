@@ -64,6 +64,7 @@ const Index = () => {
     try {
       const result = await refetchProfile();
       console.log(result.data?.name ?? "Profile not loaded");
+      console.log(result);
     } catch (err) {
       console.log(err);
     }
@@ -86,10 +87,14 @@ const Index = () => {
         </View>
 
         <TouchableOpacity onPress={handleGetProfile}>
-          <ImageBackground
-            source={{
-              uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-            }}
+          <Image
+            source={
+              profileData?.avatarUrl
+                ? { uri: profileData.avatarUrl }
+                : {
+                    uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
+                  }
+            }
             className="w-12 h-12 overflow-hidden rounded-full"
           />
         </TouchableOpacity>
