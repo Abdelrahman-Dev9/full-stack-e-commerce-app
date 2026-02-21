@@ -1,20 +1,23 @@
 import { Router } from "express";
 import {
-  forgotPassword,
-  login,
-  signup,
-  resetPassword,
-  getProfile,
-  updateProfile,
   createAddress,
-  getAddress,
-  updateAddress,
   deleteAddress,
-  verifyCode,
+  forgotPassword,
+  getAddress,
+  getProfile,
+  login,
   resetCode,
+  resetPassword,
+  signup,
+  updateAddress,
+  updateProfile,
+  uploadUserImage,
+  verifyCode,
 } from "../controllers/auth.controller";
 import { protect } from "../middleware/auth.middleware";
+import upload from "../middleware/upload.middleware";
 import { validation } from "../middleware/validations";
+import { addressSchema } from "../validations/address.validation";
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -23,7 +26,6 @@ import {
   updateProfileSchema,
   verifyResetCodeSchema,
 } from "../validations/auth.validations";
-import { addressSchema } from "../validations/address.validation";
 
 const router = Router();
 
@@ -53,5 +55,7 @@ router.post(
 );
 router.put("/updateAddress", protect, validation(addressSchema), updateAddress);
 router.delete("/deleteAddress", protect, deleteAddress);
+
+router.put("/uploadUserImage", upload.single("image"), uploadUserImage);
 
 export default router;

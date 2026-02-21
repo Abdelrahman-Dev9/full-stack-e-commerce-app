@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../utils/sendEmail";
 import { generateToken } from "../utils/jwt";
+import cloudinary from "../config/cloudinary";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -285,6 +286,42 @@ export const updateProfile = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
+  }
+};
+export const uploadUserImage = async (req: Request, res: Response) => {
+  try {
+    const userId = req.body.userId;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const fileBase64 = req.file.buffer.toString("base64");
+
+    const result = await cloudinary.uploader.upload(
+      `data:${req.file.mimetype};base64,${fileBase64}`,
+      {
+        folder: "E-commercee",
+      }
+    );
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        avatarUrl: result.secure_url,
+      },
+    });
+
+    res.json({
+      message: "Avatar uploaded successfully",
+      avatar: user.avatarUrl,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Upload failed", error });
   }
 };
 
