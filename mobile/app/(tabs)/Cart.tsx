@@ -248,7 +248,7 @@ const Cart = () => {
           }
         >
           <View className="px-6 mt-6">
-            {cartItems.map((item: any) => (
+            {[...cartItems].reverse().map((item: any) => (
               <CartItem
                 key={item.id}
                 item={item}

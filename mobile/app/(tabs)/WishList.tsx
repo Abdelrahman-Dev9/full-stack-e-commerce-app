@@ -34,7 +34,7 @@ const WishListScreen = () => {
     }
   );
 
-  const wishlistItems: WishlistItem[] = data?.items || [];
+  const wishlistItems: WishlistItem[] = data?.items?.slice().reverse() || [];
 
   const [removeProduct] = useRemoveFromWishListMutation();
 
