@@ -5,6 +5,6 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.1.23:3000/api",
   }),
-  tagTypes: ["Wishlist"],
+  tagTypes: ["Wishlist", "Address"],
   endpoints: () => ({}),
 });

@@ -1,46 +1,75 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
-  Alert,
   ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
 } from "react-native";
-import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useForm } from "react-hook-form";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/src/store/store";
-import { clearAuth } from "@/src/store/authSlice";
+import { useRouter } from "expo-router";
+
+import EditableInput from "@/src/components/EditableInput";
+import { useCreateAddressMutation } from "@/src/services/addressApi";
 import {
   useGetProfileQuery,
   useUploadUserImageMutation,
 } from "@/src/services/profileApi";
+import { clearAuth } from "@/src/store/authSlice";
+import { RootState } from "@/src/store/store";
+
+type AddressFormData = {
+  phone: string;
+  city: string;
+  area: string;
+  street: string;
+  building: string;
+  floor: string;
+  apartment: string;
+  notes: string;
+};
 
 const UserProfileScreen = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const token = useSelector((state: RootState) => state.auth.token);
 
-  // Fetch profile
+  // RTK Mutations
+  const [createAddress, { isLoading }] = useCreateAddressMutation();
+  const [uploadUserImage, { isLoading: uploading }] =
+    useUploadUserImageMutation();
+
+  // Form
+  const { control, handleSubmit } = useForm<AddressFormData>({
+    defaultValues: {
+      phone: "+1 (555) 012-3456",
+      city: "New York",
+      area: "Manhattan",
+      street: "123 Broadway St.",
+      building: "5A",
+      floor: "12",
+      apartment: "1204",
+      notes: "Leave package at the front desk concierge.",
+    },
+  });
+
+  // Profile query
   const {
     data: profileData,
     refetch: refetchProfile,
     isLoading: profileLoading,
   } = useGetProfileQuery(token);
 
-  // Upload mutation
-  const [uploadUserImage, { isLoading: uploading }] =
-    useUploadUserImageMutation();
-
-  // Optimistic avatar state
   const [localAvatar, setLocalAvatar] = useState<string | null>(null);
 
-  // Shadow style
   const shadowStyle =
     Platform.OS === "ios"
       ? {
@@ -51,7 +80,27 @@ const UserProfileScreen = () => {
         }
       : { elevation: 4 };
 
-  // Logout
+  // ─── Handlers ─────────────────────────────────────────────────────
+  const onSubmit = async (data: AddressFormData) => {
+    if (!token) {
+      Alert.alert("Error", "No auth token found.");
+      return;
+    }
+
+    try {
+      await createAddress({
+        ...data,
+        isDefault: true,
+        token,
+      }).unwrap();
+
+      Alert.alert("Success", "Home address saved successfully!");
+    } catch (error) {
+      console.error("Create address error:", error);
+      Alert.alert("Error", "Could not save address. Try again.");
+    }
+  };
+
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
@@ -66,7 +115,6 @@ const UserProfileScreen = () => {
     ]);
   };
 
-  // Request permission
   const requestPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -79,7 +127,6 @@ const UserProfileScreen = () => {
     return true;
   };
 
-  // Pick image and upload
   const pickImageAndUpload = async () => {
     const granted = await requestPermission();
     if (!granted) return;
@@ -103,7 +150,6 @@ const UserProfileScreen = () => {
           image: { uri: localUri, name: filename!, type },
         }).unwrap();
 
-        // Refetch profile to get updated avatar
         refetchProfile();
       }
     } catch (err) {
@@ -114,7 +160,7 @@ const UserProfileScreen = () => {
 
   if (profileLoading)
     return (
-      <View className="items-center justify-center flex-1">
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -125,39 +171,31 @@ const UserProfileScreen = () => {
     avatar:
       localAvatar ??
       profileData?.avatarUrl ??
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-    balance: profileData?.balance ?? 0,
-    cardNumber: profileData?.cardNumber ?? "0000",
-    orders: profileData?.orders ?? {
-      toReceive: 0,
-      processing: 0,
-      completed: 0,
-    },
+      "https://via.placeholder.com/150",
   };
 
+  // ─── Render ──────────────────────────────────────────────────────
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <SafeAreaView className="bg-white">
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={{ backgroundColor: "#fff" }}
+    >
+      <SafeAreaView>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-4">
+        <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-400">PROFILE</Text>
-          <TouchableOpacity>
-            <Ionicons name="settings-sharp" size={24} color="#374151" />
-          </TouchableOpacity>
+          <Text style={styles.headerTitle}>PROFILE</Text>
+          <View style={{ width: 24 }} />
         </View>
 
-        {/* Profile */}
-        <View className="items-center mt-6">
-          <View className="relative">
-            <Image
-              source={{ uri: user.avatar }}
-              className="w-24 h-24 rounded-full"
-            />
+        {/* Profile Avatar */}
+        <View style={styles.profileContainer}>
+          <View style={{ position: "relative" }}>
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
             <TouchableOpacity
-              className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full"
+              style={styles.editAvatarBtn}
               onPress={pickImageAndUpload}
               disabled={uploading}
             >
@@ -168,115 +206,83 @@ const UserProfileScreen = () => {
               )}
             </TouchableOpacity>
           </View>
-          <Text className="mt-4 text-xl font-bold">{user.name}</Text>
-          <View className="px-3 py-1 mt-1 bg-blue-100 rounded-full">
-            <Text className="text-sm text-blue-600">{user.email}</Text>
+          <Text style={styles.userName}>{user.name}</Text>
+          <View style={styles.userEmailContainer}>
+            <Text style={styles.userEmail}>{user.email}</Text>
           </View>
         </View>
 
-        {/* Balance */}
-        <View
-          style={shadowStyle}
-          className="p-6 mx-4 mt-6 bg-blue-600 rounded-2xl"
-        >
-          <View className="flex-row items-center justify-between">
-            <Text className="text-lg font-medium text-white">
-              Total Balance
+        {/* Edit Home Address */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Edit Home Address</Text>
+
+          <EditableInput
+            control={control}
+            name="phone"
+            label="Phone Number"
+            placeholder="Phone"
+            keyboardType="phone-pad"
+          />
+          <EditableInput
+            control={control}
+            name="city"
+            label="City"
+            placeholder="City"
+          />
+          <EditableInput
+            control={control}
+            name="area"
+            label="Area"
+            placeholder="Area"
+          />
+          <EditableInput
+            control={control}
+            name="street"
+            label="Street"
+            placeholder="Street"
+          />
+          <EditableInput
+            control={control}
+            name="building"
+            label="Building"
+            placeholder="Building"
+          />
+          <EditableInput
+            control={control}
+            name="floor"
+            label="Floor"
+            placeholder="Floor"
+          />
+          <EditableInput
+            control={control}
+            name="apartment"
+            label="Apartment"
+            placeholder="Apartment"
+          />
+          <EditableInput
+            control={control}
+            name="notes"
+            label="Delivery Notes"
+            placeholder="Notes"
+          />
+
+          <TouchableOpacity
+            disabled={isLoading}
+            onPress={handleSubmit(onSubmit)}
+            style={styles.saveBtn}
+          >
+            <Text style={styles.saveBtnText}>
+              {isLoading ? "Saving..." : "Save Address"}
             </Text>
-            <FontAwesome5 name="wallet" size={20} color="white" />
-          </View>
-          <Text className="mt-2 text-3xl font-bold text-white">
-            ${user.balance.toLocaleString()}
-          </Text>
-          <View className="flex-row items-center justify-between mt-4">
-            <Text className="text-white">•••• {user.cardNumber}</Text>
-            <TouchableOpacity className="px-4 py-2 bg-white rounded-full">
-              <Text className="font-semibold text-blue-600">Top Up</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Orders */}
-        <View className="px-4 mt-6">
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-lg font-semibold">My Orders</Text>
-            <TouchableOpacity>
-              <Text className="text-blue-500">See All</Text>
-            </TouchableOpacity>
-          </View>
-          <View className="flex-row justify-between">
-            {[
-              {
-                title: "To Receive",
-                count: user.orders.toReceive,
-                icon: "local-shipping",
-                color: "#3b82f6",
-              },
-              {
-                title: "Processing",
-                count: user.orders.processing,
-                icon: "inventory",
-                color: "#f59e0b",
-              },
-              {
-                title: "Completed",
-                count: user.orders.completed,
-                icon: "check-circle",
-                color: "#10b981",
-              },
-            ].map((item, index) => (
-              <View
-                key={index}
-                style={shadowStyle}
-                className="items-center flex-1 p-4 mx-1 bg-white rounded-xl"
-              >
-                <MaterialIcons
-                  name={item.icon as any}
-                  size={24}
-                  color={item.color}
-                />
-                <Text className="mt-2 font-medium">{item.title}</Text>
-                <Text className="text-sm text-gray-400">
-                  {item.count} items
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Settings */}
-        <View style={shadowStyle} className="mx-4 mt-6 bg-white rounded-2xl">
-          {[
-            { icon: "person", title: "Personal Details" },
-            { icon: "credit-card", title: "Payment Methods" },
-            { icon: "notifications", title: "Notifications" },
-          ].map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              className={`flex-row items-center justify-between px-4 py-4 ${
-                index !== 2 ? "border-b border-gray-200" : ""
-              }`}
-            >
-              <View className="flex-row items-center">
-                <MaterialIcons
-                  name={item.icon as any}
-                  size={24}
-                  color="#374151"
-                />
-                <Text className="ml-4 text-base">{item.title}</Text>
-              </View>
-              <MaterialIcons name="chevron-right" size={24} color="#9ca3af" />
-            </TouchableOpacity>
-          ))}
+          </TouchableOpacity>
         </View>
 
         {/* Logout */}
         <TouchableOpacity
-          style={shadowStyle}
-          className="items-center py-4 mx-4 mt-6 bg-white rounded-2xl"
+          style={[styles.logoutBtn, shadowStyle]}
           onPress={handleLogout}
         >
-          <Text className="font-semibold text-red-600">Log Out</Text>
+          <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </ScrollView>
@@ -284,3 +290,64 @@ const UserProfileScreen = () => {
 };
 
 export default UserProfileScreen;
+
+const styles = StyleSheet.create({
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  headerTitle: { fontSize: 18, fontWeight: "600", color: "#9CA3AF" },
+  profileContainer: { alignItems: "center", marginTop: 24 },
+  avatar: { width: 96, height: 96, borderRadius: 48 },
+  editAvatarBtn: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#2563EB",
+    padding: 8,
+    borderRadius: 999,
+  },
+  userName: { marginTop: 16, fontSize: 20, fontWeight: "700" },
+  userEmailContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: "#DBEAFE",
+    borderRadius: 999,
+    marginTop: 4,
+  },
+  userEmail: { fontSize: 14, color: "#2563EB" },
+  card: {
+    backgroundColor: "#fff",
+    marginHorizontal: 16,
+    padding: 20,
+    marginTop: 24,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cardTitle: { fontSize: 18, fontWeight: "700", marginBottom: 16 },
+  saveBtn: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 16,
+    borderRadius: 999,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  saveBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  logoutBtn: {
+    alignItems: "center",
+    paddingVertical: 16,
+    marginHorizontal: 16,
+    marginTop: 24,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+  },
+  logoutText: { fontWeight: "600", color: "#DC2626" },
+});
