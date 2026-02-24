@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,7 +18,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 
 import EditableInput from "@/src/components/EditableInput";
-import { useCreateAddressMutation } from "@/src/services/addressApi";
+import {
+  useCreateAddressMutation,
+  useGetAddressQuery,
+} from "@/src/services/addressApi";
 import {
   useGetProfileQuery,
   useUploadUserImageMutation,
@@ -47,19 +50,37 @@ const UserProfileScreen = () => {
   const [uploadUserImage, { isLoading: uploading }] =
     useUploadUserImageMutation();
 
-  // Form
-  const { control, handleSubmit } = useForm<AddressFormData>({
+  const { data: addressData, isLoading: addressLoading } = useGetAddressQuery(
+    token || "",
+    { skip: !token }
+  );
+
+  const { control, handleSubmit, setValue } = useForm<AddressFormData>({
     defaultValues: {
-      phone: "+1 (555) 012-3456",
-      city: "New York",
-      area: "Manhattan",
-      street: "123 Broadway St.",
-      building: "5A",
-      floor: "12",
-      apartment: "1204",
-      notes: "Leave package at the front desk concierge.",
+      phone: "",
+      city: "",
+      area: "",
+      street: "",
+      building: "",
+      floor: "",
+      apartment: "",
+      notes: "",
     },
   });
+
+  useEffect(() => {
+    if (addressData?.userAddress?.length > 0) {
+      const addr = addressData.userAddress[0];
+      setValue("phone", addr.phone);
+      setValue("city", addr.city);
+      setValue("area", addr.area);
+      setValue("street", addr.street);
+      setValue("building", addr.building);
+      setValue("floor", addr.floor);
+      setValue("apartment", addr.apartment);
+      setValue("notes", addr.notes);
+    }
+  }, [addressData]);
 
   // Profile query
   const {
