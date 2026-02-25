@@ -3,6 +3,7 @@ import ProductCard from "@/src/components/ProductCard";
 import { useAddToCartMutation } from "@/src/services/cartApi";
 import { useGetCategoriesQuery } from "@/src/services/categoriesApi";
 import { useGetProductsByCategoryMutation } from "@/src/services/productsApi";
+import { useGetProfileQuery } from "@/src/services/profileApi";
 import { useAddToWishListMutation } from "@/src/services/wishlistApi";
 import { RootState } from "@/src/store/store";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -10,7 +11,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  ImageBackground,
+  Image,
   ScrollView,
   Text,
   TextInput,
@@ -61,40 +62,46 @@ const CategoryProductsScreen = () => {
 
   const products = useMemo(() => data?.products?.[0]?.products ?? [], [data]);
 
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  const { data: profileData, refetch: refetchProfile } =
+    useGetProfileQuery(token);
+
+  const handleGetProfile = async () => {
+    try {
+      const result = await refetchProfile();
+      console.log(result.data?.name ?? "Profile not loaded");
+      router.push("/(tabs)/Profile");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingHorizontal: 24,
-          paddingTop: 48,
-          paddingBottom: 16,
-        }}
-      >
+      <View className="flex-row items-center justify-between px-6 pt-12 pb-4">
         <View>
-          <Text
-            style={{
-              fontSize: 12,
-              letterSpacing: 1,
-              color: "#6B7280",
-              textTransform: "uppercase",
-            }}
-          >
+          <Text className="text-xs tracking-widest text-gray-500 uppercase">
             Welcome back
           </Text>
-          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#1a1a1a" }}>
-            Alexander
+          <Text className="text-2xl font-bold text-gray-900">
+            {profileData?.name ?? "your name"}
           </Text>
         </View>
-        <ImageBackground
-          source={{
-            uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
-          }}
-          style={{ width: 48, height: 48, borderRadius: 24 }}
-        />
+
+        <TouchableOpacity onPress={handleGetProfile}>
+          <Image
+            source={
+              profileData?.avatarUrl
+                ? { uri: profileData.avatarUrl }
+                : {
+                    uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGHwjvpWUaqTusRRVMxcCddA3ZM6YottUmkxhEkKGOU6s6hXkzPlrnfLjq5VMJR_j3fcuWmmtBBwG92it1-fDTz26N17iDU0Bwtt7VV47P7pZ6qefXR17ZCAsAV8Pl2SqTsQ8yoff-JTgnJG6xyCCHAyMEgOb_SWU4hO9jHdu90Jea1_-bvbWtvZhIP07984GavOvZu78Nu2dZY3nBnWquAGoEeEb0tA3T3iZ8JUJFtZEBJPzL0lPJ9BCiqZF7JBax0Tin_saHpGIU",
+                  }
+            }
+            className="w-12 h-12 overflow-hidden rounded-full"
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Search */}

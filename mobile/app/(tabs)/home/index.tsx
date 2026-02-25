@@ -64,7 +64,7 @@ const Index = () => {
     try {
       const result = await refetchProfile();
       console.log(result.data?.name ?? "Profile not loaded");
-      console.log(result);
+      router.push("/(tabs)/Profile");
     } catch (err) {
       console.log(err);
     }
