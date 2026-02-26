@@ -27,10 +27,19 @@ export const WishlistCard = ({ item, onRemove, onMoveToCart }: CardProps) => {
           style={{ height: CARD_WIDTH * 1.2 }}
           resizeMode="cover"
         />
-
         <TouchableOpacity
           onPress={() => onRemove(item.product.id)}
-          className="absolute items-center justify-center w-10 h-10 bg-blue-100 rounded-full top-3 right-3"
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: "rgba(255,255,255,0.9)",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <MaterialIcons name="favorite" size={20} color="red" />
         </TouchableOpacity>
